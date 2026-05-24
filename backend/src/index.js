@@ -21,7 +21,7 @@ const authRoutes = require('./routes/auth');
 const dashboardRoutes = require('./routes/dashboard');
 const walletRoutes = require('./routes/wallet');
 const securityRoutes = require('./routes/security');
-const _networkRoutes = require('./routes/network');
+// const _networkRoutes = require('./routes/network');
 const paymentRoutes = require('./routes/payment');
 const adminRoutes = require('./routes/admin');
 const onboardingRoutes = require('./routes/onboarding');
@@ -188,7 +188,7 @@ app.use('/api/v1', v1Router);
 // Per-endpoint limiters must be BEFORE generic
 // route to take effect
 // ============================================
-app.use('/api/auth', authRoutes);
+app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/wallet', userLimiter, walletRoutes);
 app.use('/api/wallet/withdraw', withdrawLimiter);

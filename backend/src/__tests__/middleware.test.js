@@ -46,7 +46,7 @@ describe('Middleware: auth', () => {
 });
 
 describe('Middleware: validate', () => {
-    const { registerRules: _registerRules, loginRules: _loginRules, handleValidationErrors } = require('../middleware/validate');
+    const { handleValidationErrors } = require('../middleware/validate');
 
     function mockReq(overrides = {}) {
         return { body: {}, ...overrides };

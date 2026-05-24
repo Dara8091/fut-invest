@@ -21,7 +21,7 @@ feeInsert.run('USDT', 'ERC20', 8.0, 0, 20, 50000, 12);
 
 const { generateDepositAddress, getDepositStatus, quoteWithdrawal, exportCSV } = require('../controllers/paymentController');
 const { withdraw, getTransactions } = require('../controllers/walletController');
-const { getAllWithdrawals, approveWithdrawal: _approveWithdrawal } = require('../controllers/adminController');
+const { getAllWithdrawals } = require('../controllers/adminController');
 
 function mockReq(overrides = {}) {
     return { body: {}, headers: {}, user: { userId: user.id, role: 'investor' }, params: {}, query: {}, ...overrides };

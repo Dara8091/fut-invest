@@ -12,7 +12,7 @@ class MockProvider {
         return { address: `${p}${rand}${userId}`, provider: 'mock' };
     }
 
-    async submitWithdrawal(asset, amount, address) {
+    async submitWithdrawal(_asset, _amount, _address) {
         const txHash = `mock_tx_${crypto.randomBytes(16).toString('hex')}`;
         return { txHash, providerTxId: txHash, status: 'completed' };
     }
@@ -21,7 +21,7 @@ class MockProvider {
         return { status: 'completed', confirmations: 3, providerTxId };
     }
 
-    verifyWebhook(payload, signature) {
+    verifyWebhook(_payload, _signature) {
         return true;
     }
 }
