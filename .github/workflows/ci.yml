@@ -26,16 +26,16 @@ jobs:
 
       - run: npm ci
 
+      - run: npm run migrate
+        env:
+          DB_PATH: ./data/ci.db
+          JWT_SECRET: test-secret
+
       - run: npm test
         env:
           JWT_SECRET: test-secret
           FRONTEND_URL: http://localhost:8000
-          DB_PATH: ':memory:'
-
-      - run: npm run migrate
-        env:
-          DB_PATH: ./data/test.db
-          JWT_SECRET: test-secret
+          DB_PATH: ./data/ci.db
 
   lint:
     runs-on: ubuntu-latest
