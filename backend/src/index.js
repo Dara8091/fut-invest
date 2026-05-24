@@ -188,7 +188,10 @@ app.use('/api/v1', v1Router);
 // Per-endpoint limiters must be BEFORE generic
 // route to take effect
 // ============================================
-app.use('/api/auth', authLimiter, authRoutes);
+if (isProduction) {
+    app.use('/api/auth', authLimiter);
+}
+app.use('/api/auth', authRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/wallet', userLimiter, walletRoutes);
 app.use('/api/wallet/withdraw', withdrawLimiter);
