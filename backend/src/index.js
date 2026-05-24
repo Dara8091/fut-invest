@@ -28,6 +28,7 @@ const onboardingRoutes = require('./routes/onboarding');
 const metricsRoutes = require('./routes/metrics');
 const settingsRoutes = require('./routes/settings');
 const referralsRoutes = require('./routes/referrals');
+const profileRoutes = require('./routes/profile');
 const v1Router = require('./routes/v1');
 const withdrawalWorker = require('./services/withdrawalWorker');
 const notificationService = require('./services/notificationService');
@@ -203,6 +204,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/onboarding', onboardingRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/referrals', referralsRoutes);
+app.use('/api/profile', profileRoutes);
 app.use('/api/metrics', metricsRoutes);
 
 // Sentry error handler (must be before express error handler)

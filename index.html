@@ -44,6 +44,9 @@
     <a class="skip-link" href="#main-content">Saltar al contenido principal</a>
     <div class="app-container">
         <!-- Barra Lateral de Navegación -->
+        <button class="hamburger-btn" id="hamburger-btn" aria-label="Menú de navegación">
+            <span class="material-icons-round">menu</span>
+        </button>
         <aside class="sidebar" role="navigation" aria-label="Navegación principal">
             <div class="brand">
                 <span class="material-icons-round brand-icon" aria-hidden="true">shield</span>
@@ -74,10 +77,14 @@
                     <span class="material-icons-round" aria-hidden="true">code</span>
                     <span>Flutter Code Hub</span>
                 </button>
-                <button class="nav-item" data-tab="settings" id="btn-tab-settings" style="display: none;">
-                    <span class="material-icons-round" aria-hidden="true">settings</span>
-                    <span>Configuración</span>
-                </button>
+<button class="nav-item" data-tab="settings" id="btn-tab-settings" style="display: none;">
+    <span class="material-icons-round">settings</span>
+    <span class="nav-label" data-i18n="nav.settings">Ajustes</span>
+</button>
+<button class="nav-item" data-tab="profile" id="btn-tab-profile" style="display: none;">
+    <span class="material-icons-round">person</span>
+    <span class="nav-label">Mi Perfil</span>
+</button>
                 <button class="nav-item" data-tab="admin" id="btn-tab-admin" style="display: none;">
                     <span class="material-icons-round" aria-hidden="true">admin_panel_settings</span>
                     <span>Administración</span>
@@ -116,6 +123,13 @@
             <div class="content-scroll">
                 <!-- ================= TAB: DASHBOARD ================= -->
                 <section class="tab-content active" id="tab-dashboard">
+                    <!-- Market Ticker -->
+                    <div class="market-ticker-bar" id="market-ticker">
+                        <div class="ticker-item"><span class="ticker-sym">BTC/USD</span><span class="ticker-price" id="ticker-btc">—</span><span class="ticker-change" id="ticker-btc-chg"></span></div>
+                        <div class="ticker-item"><span class="ticker-sym">ETH/USD</span><span class="ticker-price" id="ticker-eth">—</span><span class="ticker-change" id="ticker-eth-chg"></span></div>
+                        <div class="ticker-item"><span class="ticker-sym">FUT Index</span><span class="ticker-price" id="ticker-fut">—</span><span class="ticker-change" id="ticker-fut-chg"></span></div>
+                        <div class="ticker-item"><span class="ticker-sym">24h Vol</span><span class="ticker-price" id="ticker-vol">—</span></div>
+                    </div>
                     <div class="dashboard-hero">
                         <div class="hero-main-card">
                             <span class="hero-card-tag">BALANCE TOTAL DISPONIBLE</span>
@@ -214,12 +228,108 @@
                             </div>
                         </div>
 
-                        <!-- Simular nueva inversión -->
-                        <div class="glass-card add-contract-card">
-                            <span class="material-icons-round add-icon">add_task</span>
-                            <h4>Aperturar Nuevo Contrato</h4>
-                            <p>Incrementa tu balance de inversión y obtén rendimientos inmediatos.</p>
-                            <button class="btn btn-outline btn-compact" onclick="switchTab('wallet')">Depositar Capital</button>
+                    </div>
+
+                    <!-- Investment Plans -->
+                    <div class="plans-section">
+                        <div class="plans-header">
+                            <span class="material-icons-round">account_balance</span>
+                            <h3>Planes de Inversión</h3>
+                            <button class="btn btn-outline btn-compact" onclick="showAllPlans()">Ver todos</button>
+                        </div>
+                        <div class="plans-grid" id="plans-grid">
+                            <div class="plan-card" data-plan="interbank">
+                                <div class="plan-badge interbank">Interbank</div>
+                                <div class="plan-name">Plazo Fijo Interbancario</div>
+                                <div class="plan-rate">4.2% <span>mensual</span></div>
+                                <div class="plan-details">
+                                    <span>$5,000 - $50,000</span>
+                                    <span>30 días</span>
+                                </div>
+                                <button class="btn btn-primary btn-full plan-invest-btn" onclick="openInvestModal('Interbank')">Invertir</button>
+                            </div>
+                            <div class="plan-card" data-plan="institutional">
+                                <div class="plan-badge institutional">Institutional</div>
+                                <div class="plan-name">Fondo Institucional</div>
+                                <div class="plan-rate">6.8% <span>mensual</span></div>
+                                <div class="plan-details">
+                                    <span>$10,000 - $250,000</span>
+                                    <span>60 días</span>
+                                </div>
+                                <button class="btn btn-primary btn-full plan-invest-btn" onclick="openInvestModal('Institutional')">Invertir</button>
+                            </div>
+                            <div class="plan-card" data-plan="crypto">
+                                <div class="plan-badge crypto">Crypto Yield</div>
+                                <div class="plan-name">Rendimiento en Cripto</div>
+                                <div class="plan-rate">9.5% <span>mensual</span></div>
+                                <div class="plan-details">
+                                    <span>$500 - $25,000</span>
+                                    <span>Flexible</span>
+                                </div>
+                                <button class="btn btn-primary btn-full plan-invest-btn" onclick="openInvestModal('Crypto')">Invertir</button>
+                            </div>
+                            <div class="plan-card" data-plan="premium">
+                                <div class="plan-badge premium">Premium</div>
+                                <div class="plan-name">Cuenta Premium</div>
+                                <div class="plan-rate">12.0% <span>mensual</span></div>
+                                <div class="plan-details">
+                                    <span>$25,000 - $500,000</span>
+                                    <span>90 días</span>
+                                </div>
+                                <button class="btn btn-primary btn-full plan-invest-btn" onclick="openInvestModal('Premium')">Invertir</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Trading Widget -->
+                    <div class="trading-widget">
+                        <div class="trading-widget-header">
+                            <span class="material-icons-round">show_chart</span>
+                            <h3>Trading Rápido</h3>
+                            <span class="trading-badge">Solo mayores de edad</span>
+                        </div>
+                        <div class="trading-widget-body">
+                            <div class="trading-form-row">
+                                <div class="trading-asset-select">
+                                    <select id="trade-asset" class="custom-select">
+                                        <option value="BTCUSD">BTC/USD</option>
+                                        <option value="ETHUSD">ETH/USD</option>
+                                        <option value="FUT">FUT Index</option>
+                                    </select>
+                                </div>
+                                <div class="trading-type-select">
+                                    <button class="trade-type-btn active" data-side="buy" id="trade-buy-btn"><span class="material-icons-round">trending_up</span> Comprar</button>
+                                    <button class="trade-type-btn" data-side="sell" id="trade-sell-btn"><span class="material-icons-round">trending_down</span> Vender</button>
+                                </div>
+                            </div>
+                            <div class="trading-form-row">
+                                <div class="form-group">
+                                    <label>Monto (USD)</label>
+                                    <input type="number" id="trade-amount" class="custom-input" placeholder="100" min="10" value="100">
+                                </div>
+                                <div class="trading-price-display">
+                                    <span class="trade-price-label">Precio estimado</span>
+                                    <span class="trade-price-value" id="trade-price">$0.00</span>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary btn-full" id="btn-execute-trade">
+                                <span class="material-icons-round">bolt</span> Ejecutar Operación
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Performance Chart -->
+                    <div class="glass-card chart-card">
+                        <div class="card-header">
+                            <span class="material-icons-round text-primary">monitoring</span>
+                            <h3>Rendimiento (7 días)</h3>
+                            <div class="chart-legend">
+                                <span class="legend-item"><span class="legend-dot" style="background:var(--neon-cyan)"></span> ROI Diario</span>
+                                <span class="legend-item"><span class="legend-dot" style="background:var(--neon-green)"></span> Balance</span>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="perf-chart" width="600" height="200"></canvas>
                         </div>
                     </div>
 
@@ -242,20 +352,35 @@
                                 </div>
 
                                 <div class="tier-select-grid">
-                                    <div class="tier-option active" data-tier="black">
-                                        <strong>Black VIP</strong>
-                                        <span>Desde $5,000</span>
-                                        <small>ROI: 1.8% - 2.5%</small>
+                                    <div class="tier-option" data-tier="silver">
+                                        <strong>Silver</strong>
+                                        <span>$100 - $999</span>
+                                        <small>ROI: 1.2% - 1.5%</small>
                                     </div>
                                     <div class="tier-option" data-tier="gold">
-                                        <strong>Gold Tier</strong>
+                                        <strong>Gold</strong>
                                         <span>$1,000 - $4,999</span>
                                         <small>ROI: 1.5% - 2.0%</small>
                                     </div>
-                                    <div class="tier-option" data-tier="silver">
-                                        <strong>Silver Tier</strong>
-                                        <span>$100 - $999</span>
-                                        <small>ROI: 1.2% - 1.5%</small>
+                                    <div class="tier-option active" data-tier="black">
+                                        <strong>Black VIP</strong>
+                                        <span>$5,000 - $9,999</span>
+                                        <small>ROI: 1.8% - 2.5%</small>
+                                    </div>
+                                    <div class="tier-option" data-tier="interbank">
+                                        <strong>Interbank</strong>
+                                        <span>$10K - $24,999</span>
+                                        <small>4.2% mensual fijo</small>
+                                    </div>
+                                    <div class="tier-option" data-tier="institutional">
+                                        <strong>Institutional</strong>
+                                        <span>$25K - $49,999</span>
+                                        <small>6.8% mensual fijo</small>
+                                    </div>
+                                    <div class="tier-option" data-tier="premium">
+                                        <strong>Premium</strong>
+                                        <span>$50K - $500K</span>
+                                        <small>12.0% mensual fijo</small>
                                     </div>
                                 </div>
 
@@ -781,6 +906,56 @@
                     </div>
                 </section>
 
+                <!-- ================= TAB: PROFILE ================= -->
+                <section class="tab-content" id="tab-profile">
+                    <div class="profile-container">
+                        <div class="profile-header">
+                            <div class="profile-avatar">
+                                <span class="material-icons-round" style="font-size:48px">person</span>
+                            </div>
+                            <h2 id="profile-name">Cargando...</h2>
+                            <span class="profile-tier" id="profile-tier"></span>
+                        </div>
+                        <div class="profile-grid">
+                            <div class="profile-card">
+                                <h3><span class="material-icons-round">account_balance_wallet</span> Mi Cartera</h3>
+                                <div class="profile-balance" id="profile-balance">$0.00</div>
+                                <div class="profile-stats">
+                                    <div><span>Ganancias</span><strong id="profile-earnings">$0.00</strong></div>
+                                    <div><span>ROI Diario</span><strong id="profile-roi">0%</strong></div>
+                                    <div><span>Contratos</span><strong id="profile-contracts">0</strong></div>
+                                </div>
+                            </div>
+                            <div class="profile-card">
+                                <h3><span class="material-icons-round">info</span> Mi Información</h3>
+                                <div class="profile-info-list">
+                                    <div><span>Email</span><strong id="profile-email">-</strong></div>
+                                    <div><span>Membresía</span><strong id="profile-since">-</strong></div>
+                                    <div><span>KYC</span><strong id="profile-kyc">-</strong></div>
+                                    <div><span>2FA</span><strong id="profile-2fa">-</strong></div>
+                                </div>
+                            </div>
+                            <div class="profile-card">
+                                <h3><span class="material-icons-round">swap_horiz</span> Acción Rápida</h3>
+                                <div class="profile-actions">
+                                    <button class="profile-action-btn" onclick="switchTab('wallet')">
+                                        <span class="material-icons-round">add_circle</span> Depositar
+                                    </button>
+                                    <button class="profile-action-btn" onclick="switchTab('wallet')">
+                                        <span class="material-icons-round">logout</span> Retirar
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="profile-card">
+                                <h3><span class="material-icons-round">receipt</span> Últimos Movimientos</h3>
+                                <div id="profile-recent-tx">
+                                    <p style="color:var(--text-secondary);text-align:center;padding:20px">Cargando...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
                 <!-- ================= TAB: SETTINGS ================= -->
                 <section class="tab-content" id="tab-settings">
                     <div class="settings-grid">
@@ -1066,6 +1241,33 @@
                 </section>
             </div>
         </main>
+    </div>
+
+    <!-- Modal de Inversión -->
+    <div class="modal-overlay" id="invest-modal" style="display: none;">
+        <div class="modal-box invest-modal-box">
+            <span class="material-icons-round modal-icon" style="color:var(--neon-cyan);font-size:40px;">account_balance</span>
+            <h3 id="invest-modal-title">Invertir en <span id="invest-plan-name">Interbank</span></h3>
+            <div class="invest-modal-body">
+                <div class="invest-plan-summary" id="invest-plan-summary">
+                    <div><span>Tasa</span><strong id="invest-rate">4.2% mensual</strong></div>
+                    <div><span>Plazo</span><strong id="invest-term">30 días</strong></div>
+                    <div><span>Monto min</span><strong id="invest-min">$5,000</strong></div>
+                </div>
+                <div class="form-group">
+                    <label for="invest-amount">Monto a Invertir (USD)</label>
+                    <input type="number" id="invest-amount" class="custom-input" placeholder="5,000" min="100">
+                </div>
+                <div class="invest-projection" id="invest-projection">
+                    <div class="projection-row"><span>Retorno estimado al vencimiento</span><strong id="projection-return">$0.00</strong></div>
+                    <div class="projection-row"><span>Capital + Retorno</span><strong id="projection-total">$0.00</strong></div>
+                </div>
+            </div>
+            <div class="modal-footer" style="justify-content:space-between;width:100%;">
+                <button class="btn btn-outline" onclick="document.getElementById('invest-modal').style.display='none'">Cancelar</button>
+                <button class="btn btn-primary" id="btn-confirm-invest">Confirmar Inversión</button>
+            </div>
+        </div>
     </div>
 
     <!-- Modal de Alerta de Transacción / Liquidación -->

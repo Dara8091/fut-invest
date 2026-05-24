@@ -788,6 +788,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function toggleAdminTab(user) {
         const adminBtn = document.getElementById('btn-tab-admin');
         const settingsBtn = document.getElementById('btn-tab-settings');
+        const profileBtn = document.getElementById('btn-tab-profile');
         if (!adminBtn) return;
         const role = user?.role || 'investor';
         if (role === 'admin' || role === 'superadmin') {
@@ -802,6 +803,11 @@ document.addEventListener('DOMContentLoaded', () => {
             settingsBtn.style.display = 'flex';
         } else if (settingsBtn) {
             settingsBtn.style.display = 'none';
+        }
+        if (profileBtn && user) {
+            profileBtn.style.display = 'flex';
+        } else if (profileBtn) {
+            profileBtn.style.display = 'none';
         }
     }
 
@@ -1210,6 +1216,10 @@ document.addEventListener('DOMContentLoaded', () => {
         settings: {
             title: "Configuración",
             subtitle: "Cambia tu contraseña, notificaciones y administra tu cuenta."
+        },
+        profile: {
+            title: "Mi Perfil",
+            subtitle: "Información personal, cartera y actividad reciente."
         }
     };
 
@@ -1242,8 +1252,44 @@ document.addEventListener('DOMContentLoaded', () => {
             if (tabName === 'admin') {
                 refreshAdminPanel();
             }
+
+            if (tabName === 'profile') {
+                loadProfile();
+            }
         }
     };
+
+    async function loadProfile() {
+        try {
+            const res = await ApiService._fetch('/api/profile');
+            if (!res.ok) return;
+            const data = await res.json();
+            const u = data.user || {}, a = data.account || {};
+            document.getElementById('profile-name').textContent = u.fullName || '—';
+            document.getElementById('profile-email').textContent = u.email || '—';
+            document.getElementById('profile-tier').textContent = (u.tier || 'silver').toUpperCase();
+            document.getElementById('profile-tier').className = 'tier-badge ' + (u.tier || 'silver');
+            document.getElementById('profile-balance').textContent = '$' + (a.balance || 0).toLocaleString('en-US', { minimumFractionDigits: 2 });
+            document.getElementById('profile-earnings').textContent = '$' + (a.accumulatedEarnings || 0).toLocaleString('en-US', { minimumFractionDigits: 2 });
+            document.getElementById('profile-roi').textContent = (a.dailyRoi || 0) + '%';
+            document.getElementById('profile-contracts').textContent = data.activeContracts || 0;
+            document.getElementById('profile-since').textContent = u.memberSince ? new Date(u.memberSince).toLocaleDateString() : '—';
+            document.getElementById('profile-kyc').textContent = u.kycStatus || '—';
+            document.getElementById('profile-kyc').className = 'status-' + (u.kycStatus || 'pending');
+            document.getElementById('profile-2fa').textContent = u.totpEnabled ? 'Activado' : 'No';
+            const txContainer = document.getElementById('profile-recent-tx');
+            const txs = data.recentTransactions || [];
+            if (txs.length === 0) {
+                txContainer.innerHTML = '<p style="color:var(--text-secondary);text-align:center;padding:20px">Sin movimientos recientes</p>';
+            } else {
+                txContainer.innerHTML = txs.map(t =>
+                    `<div class="tx-row"><span class="tx-type tx-${t.type || 'unknown'}">${t.type || '—'}</span><span>${t.asset || '—'}</span><span>$${t.amount || 0}</span><span class="tx-status tx-${t.status || 'pending'}">${t.status || '—'}</span></div>`
+                ).join('');
+            }
+        } catch (e) {
+            console.error('Error loading profile:', e);
+        }
+    }
 
     navItems.forEach(item => {
         item.addEventListener('click', () => {
@@ -1274,6 +1320,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (targetTab === 'admin') {
                 refreshAdminPanel();
+            }
+
+            if (targetTab === 'profile') {
+                loadProfile();
+            }
+
+            if (targetTab === 'settings') {
+                setTimeout(loadSettings, 100);
             }
         });
     });
@@ -1329,6 +1383,177 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
+    // --- Market Ticker Simulation ---
+    function simulateMarketTicker() {
+        function r() { return (Math.random() - 0.5) * 0.02; }
+        let prices = { btc: 68420 + Math.random() * 500, eth: 3520 + Math.random() * 50, fut: 1250 + Math.random() * 30 };
+        let changes = { btc: 0, eth: 0, fut: 0 };
+        setInterval(() => {
+            Object.keys(prices).forEach(k => { const c = r(); prices[k] += c; changes[k] = c; });
+            const fmt = (v) => v.toFixed(2);
+            const chg = (c) => c >= 0 ? `<span class="ticker-change up">+${(c/prices.btc*100).toFixed(2)}%</span>` : `<span class="ticker-change down">${(c/prices.btc*100).toFixed(2)}%</span>`;
+            document.getElementById('ticker-btc').textContent = '$' + fmt(prices.btc);
+            document.getElementById('ticker-btc-chg').innerHTML = chg(changes.btc);
+            document.getElementById('ticker-eth').textContent = '$' + fmt(prices.eth);
+            document.getElementById('ticker-eth-chg').innerHTML = chg(changes.eth);
+            document.getElementById('ticker-fut').textContent = '$' + fmt(prices.fut);
+            document.getElementById('ticker-fut-chg').innerHTML = chg(changes.fut);
+            document.getElementById('ticker-vol').textContent = '$' + (80000000 + Math.random() * 50000000).toLocaleString('en-US', {maximumFractionDigits:0});
+            document.getElementById('trade-price').textContent = '$' + fmt(prices.fut);
+        }, 2500);
+    }
+    simulateMarketTicker();
+
+    // --- Trading Widget ---
+    document.getElementById('trade-buy-btn')?.addEventListener('click', () => {
+        document.querySelectorAll('.trade-type-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('trade-buy-btn').classList.add('active');
+    });
+    document.getElementById('trade-sell-btn')?.addEventListener('click', () => {
+        document.querySelectorAll('.trade-type-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('trade-sell-btn').classList.add('active');
+    });
+    document.getElementById('btn-execute-trade')?.addEventListener('click', () => {
+        const side = document.querySelector('.trade-type-btn.active')?.dataset?.side || 'buy';
+        const asset = document.getElementById('trade-asset')?.value || 'FUT';
+        const amount = parseFloat(document.getElementById('trade-amount')?.value) || 0;
+        if (amount < 10) { showNotification('Error', 'Monto mínimo $10 USD', 'error'); return; }
+        showNotification(side === 'buy' ? 'Compra ejecutada' : 'Venta ejecutada',
+            `${side === 'buy' ? 'Comprados' : 'Vendidos'} $${amount} de ${asset}`, 'success');
+    });
+
+    // --- Performance Chart ---
+    function drawPerfChart() {
+        const canvas = document.getElementById('perf-chart');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const dpr = window.devicePixelRatio || 1;
+        const rect = canvas.getBoundingClientRect();
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+        ctx.scale(dpr, dpr);
+        const W = rect.width, H = rect.height;
+        const data = Array.from({length:14}, () => 1.2 + Math.random() * 1.8);
+        const bal = Array.from({length:14}, (_,i) => 10000 + i * 200 + Math.random() * 500);
+        const pad = {t:20, b:20, l:40, r:20};
+        const xStep = (W - pad.l - pad.r) / (data.length - 1);
+        ctx.clearRect(0,0,W,H);
+        function drawLine(arr, color, fill) {
+            ctx.beginPath();
+            arr.forEach((v,i) => { const x = pad.l + i * xStep; const y = pad.t + (1 - (v-Math.min(...arr))/(Math.max(...arr)-Math.min(...arr)||1)) * (H - pad.t - pad.b); i === 0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y); });
+            if (fill) { ctx.lineTo(pad.l + (arr.length-1) * xStep, H - pad.b); ctx.lineTo(pad.l, H - pad.b); ctx.closePath(); ctx.fillStyle = color + '15'; ctx.fill(); }
+            ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.stroke();
+        }
+        drawLine(data, '#00D4FF', true);
+        drawLine(bal.map(v=>(v-9000)/1000), '#00FF88', false);
+        ctx.fillStyle = '#4A5278'; ctx.font = '10px JetBrains Mono, monospace';
+        ctx.fillText('ROI %', pad.l, 14);
+        ctx.fillText('7d', W - pad.r - 20, H - 6);
+    }
+    setTimeout(drawPerfChart, 300);
+    window.addEventListener('resize', () => setTimeout(drawPerfChart, 300));
+
+    // --- Investment Plans & Modal ---
+    window.showAllPlans = function() {
+        document.getElementById('plans-grid')?.scrollIntoView({ behavior: 'smooth' });
+    };
+
+    const PLAN_DATA = {
+        Interbank: { rate: 4.2, term: '30 días', min: 5000, max: 50000, color: 'var(--neon-cyan)' },
+        Institutional: { rate: 6.8, term: '60 días', min: 10000, max: 250000, color: '#A78BFA' },
+        Crypto: { rate: 9.5, term: 'Flexible', min: 500, max: 25000, color: '#FFB800' },
+        Premium: { rate: 12.0, term: '90 días', min: 25000, max: 500000, color: '#FFD700' },
+    };
+
+    window.openInvestModal = function(planName) {
+        const plan = PLAN_DATA[planName];
+        if (!plan) return;
+        document.getElementById('invest-plan-name').textContent = planName;
+        document.getElementById('invest-rate').textContent = plan.rate + '% mensual';
+        document.getElementById('invest-term').textContent = plan.term;
+        document.getElementById('invest-min').textContent = '$' + plan.min.toLocaleString();
+        document.getElementById('invest-amount').value = plan.min;
+        document.getElementById('invest-amount').min = plan.min;
+        updateProjection(planName, plan.min);
+        document.getElementById('invest-modal').style.display = 'flex';
+    };
+
+    function updateProjection(planName, amount) {
+        const plan = PLAN_DATA[planName];
+        if (!plan) return;
+        const monthlyReturn = amount * (plan.rate / 100);
+        document.getElementById('projection-return').textContent = '$' + monthlyReturn.toLocaleString('en-US', { minimumFractionDigits: 2 });
+        document.getElementById('projection-total').textContent = '$' + (amount + monthlyReturn).toLocaleString('en-US', { minimumFractionDigits: 2 });
+    }
+
+    document.getElementById('invest-amount')?.addEventListener('input', function() {
+        const planName = document.getElementById('invest-plan-name').textContent;
+        const plan = PLAN_DATA[planName];
+        if (!plan) return;
+        const val = parseFloat(this.value) || 0;
+        if (val < plan.min || val > plan.max) {
+            this.style.borderColor = 'var(--neon-magenta)';
+        } else {
+            this.style.borderColor = '';
+        }
+        updateProjection(planName, val);
+    });
+
+    document.getElementById('btn-confirm-invest')?.addEventListener('click', function() {
+        const planName = document.getElementById('invest-plan-name').textContent;
+        const plan = PLAN_DATA[planName];
+        const amount = parseFloat(document.getElementById('invest-amount').value) || 0;
+        if (amount < plan.min || amount > plan.max) {
+            showNotification('Error', `Monto debe ser entre $${plan.min.toLocaleString()} y $${plan.max.toLocaleString()}`, 'error');
+            return;
+        }
+        const returnVal = amount * (plan.rate / 100);
+        document.getElementById('invest-modal').style.display = 'none';
+        showNotification('Inversión Confirmada',
+            `$${amount.toLocaleString()} en ${planName}. Retorno estimado: $${returnVal.toLocaleString()}`,
+            'success');
+    });
+
+    document.getElementById('invest-modal')?.addEventListener('click', function(e) {
+        if (e.target === this) this.style.display = 'none';
+    });
+
+    // --- Hamburger Menu ---
+    document.getElementById('hamburger-btn')?.addEventListener('click', () => {
+        document.querySelector('.sidebar').classList.toggle('sidebar-open');
+    });
+    document.addEventListener('click', (e) => {
+        if (window.innerWidth <= 768 && !e.target.closest('.sidebar') && !e.target.closest('#hamburger-btn')) {
+            document.querySelector('.sidebar')?.classList.remove('sidebar-open');
+        }
+    });
+
+    // --- Tab Transitions ---
+    const origSwitchFn = window.switchTab;
+    window.switchTab = function(tabName) {
+        const current = document.querySelector('.tab-content.active');
+        const next = document.getElementById('tab-' + tabName);
+        if (current && next && current !== next) {
+            current.style.opacity = '0';
+            current.style.transform = 'translateY(8px)';
+            setTimeout(() => {
+                current.classList.remove('active');
+                current.style.opacity = '';
+                current.style.transform = '';
+                next.classList.add('active');
+                next.style.opacity = '0';
+                next.style.transform = 'translateY(8px)';
+                requestAnimationFrame(() => {
+                    next.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
+                    next.style.opacity = '1';
+                    next.style.transform = 'translateY(0)';
+                    setTimeout(() => { next.style.transition = ''; next.style.opacity = ''; next.style.transform = ''; }, 300);
+                });
+            }, 150);
+        }
+        if (origSwitchFn) origSwitchFn(tabName);
+    };
+
     // --- ROI Calculator Tier Selection & Math ---
     tierOptions.forEach(opt => {
         opt.addEventListener('click', () => {
@@ -1336,14 +1561,10 @@ document.addEventListener('DOMContentLoaded', () => {
             opt.classList.add('active');
             activeTier = opt.getAttribute('data-tier');
             
-            // Auto update input slider minimum bounds based on Tier
-            if (activeTier === 'black' && calcInvestmentSlider.value < 5000) {
-                calcInvestmentSlider.value = 5000;
-            } else if (activeTier === 'gold' && (calcInvestmentSlider.value < 1000 || calcInvestmentSlider.value >= 5000)) {
-                calcInvestmentSlider.value = 2500;
-            } else if (activeTier === 'silver' && calcInvestmentSlider.value >= 1000) {
-                calcInvestmentSlider.value = 500;
-            }
+            const bounds = { silver: 500, gold: 2500, black: 5000, interbank: 10000, institutional: 25000, premium: 50000 };
+            const bound = bounds[activeTier] || 500;
+            if (parseFloat(calcInvestmentSlider.value) < bound) calcInvestmentSlider.value = bound;
+            else if (activeTier === 'silver' && calcInvestmentSlider.value >= 1000) calcInvestmentSlider.value = 500;
 
             updateCalculator();
         });
@@ -1353,35 +1574,28 @@ document.addEventListener('DOMContentLoaded', () => {
         const principal = parseFloat(calcInvestmentSlider.value);
         calcAmountLabel.textContent = `$${principal.toLocaleString('en-US')} USD`;
 
-        // Calculate average daily rate based on tier
-        let dailyRate = 0.02; // default
-        if (activeTier === 'black') {
-            dailyRate = 0.0225; // 2.25% average
-            // auto highlight tier if principal crosses boundaries
-            if (principal < 5000) {
-                // Adjust option visual bounds
-                setCalculatorTierActive('gold');
-                return;
-            }
-        } else if (activeTier === 'gold') {
-            dailyRate = 0.0175; // 1.75% average
-            if (principal >= 5000) {
-                setCalculatorTierActive('black');
-                return;
-            } else if (principal < 1000) {
-                setCalculatorTierActive('silver');
-                return;
-            }
-        } else if (activeTier === 'silver') {
-            dailyRate = 0.0135; // 1.35% average
-            if (principal >= 1000) {
-                setCalculatorTierActive('gold');
-                return;
-            }
+        let monthlyRate = 0;
+        if (activeTier === 'silver') { monthlyRate = 0.0125;
+            if (principal >= 1000) { setCalculatorTierActive('gold'); return; }
+        } else if (activeTier === 'gold') { monthlyRate = 0.0175;
+            if (principal >= 5000) { setCalculatorTierActive('black'); return; }
+            if (principal < 1000) { setCalculatorTierActive('silver'); return; }
+        } else if (activeTier === 'black') { monthlyRate = 0.0225;
+            if (principal >= 10000) { setCalculatorTierActive('interbank'); return; }
+            if (principal < 5000) { setCalculatorTierActive('gold'); return; }
+        } else if (activeTier === 'interbank') { monthlyRate = 0.042;
+            if (principal >= 25000) { setCalculatorTierActive('institutional'); return; }
+            if (principal < 10000) { setCalculatorTierActive('black'); return; }
+        } else if (activeTier === 'institutional') { monthlyRate = 0.068;
+            if (principal >= 50000) { setCalculatorTierActive('premium'); return; }
+            if (principal < 25000) { setCalculatorTierActive('interbank'); return; }
+        } else if (activeTier === 'premium') { monthlyRate = 0.12;
+            if (principal < 50000) { setCalculatorTierActive('institutional'); return; }
         }
 
+        const dailyRate = monthlyRate / 30;
         const dailyReturn = principal * dailyRate;
-        const monthlyReturn = dailyReturn * 30;
+        const monthlyReturn = principal * monthlyRate;
         const yearlyReturn = dailyReturn * 365;
 
         calcDailyVal.textContent = `+$${dailyReturn.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD`;

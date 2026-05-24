@@ -244,4 +244,81 @@ function exportCSV(req, res) {
     res.send(header + rows);
 }
 
-module.exports = { generateDepositAddress, handleWebhook, getDepositStatus, quoteWithdrawal, exportCSV };
+function getBankTransferInfo(req, res) {
+    res.json({
+        bankName: 'FutInvest Financial Inc.',
+        accountName: 'FutInvest LLC',
+        accountNumber: '1234-5678-9012-3456',
+        swiftCode: 'FUTIUS42',
+        routingNumber: '026-073-008',
+        address: '100 Financial District, New York, NY 10004, USA',
+        notes: 'Incluye tu ID de usuario como referencia. El depósito puede tardar 1-3 días hábiles.',
+        currencies: ['USD', 'EUR'],
+        minAmount: 100,
+    });
+}
+
+function requestCardDeposit(req, res) {
+    const userId = req.user.userId;
+    const { amount, currency } = req.body;
+
+    if (!amount || amount < 50) return res.status(400).json({ error: 'Monto mínimo: $50' });
+    const fee = Math.round((amount * 0.029 + 0.30) * 100) / 100;
+
+    const tx = db.prepare(
+        "INSERT INTO transactions (user_id, type, asset, amount, fee, status, metadata) VALUES (?, 'deposit', ?, ?, ?, 'pending', ?)"
+    ).run(userId, currency || 'USD', amount, fee, JSON.stringify({ method: 'card', provider: 'stripe' }));
+
+    res.json({
+        success: true,
+        transactionId: tx.lastInsertRowid,
+        amount,
+        fee,
+        netAmount: amount - fee,
+        currency: currency || 'USD',
+        paymentUrl: `https://pay.stripe.com/checkout?amount=${Math.round(amount * 100)}&currency=${(currency || 'USD').toLowerCase()}&tx=${tx.lastInsertRowid}`,
+        message: 'Redirigiendo a pasarela de pago...',
+    });
+}
+
+function getDepositMethods(req, res) {
+    res.json({
+        methods: [
+            {
+                id: 'crypto',
+                name: 'Criptomonedas',
+                icon: 'currency_bitcoin',
+                description: 'Deposita USDT o BTC desde tu wallet externa',
+                currencies: ['USDT_TRC20', 'USDT_ERC20', 'BTC'],
+                minAmount: 10,
+                processingTime: 'instantáneo',
+                enabled: true,
+            },
+            {
+                id: 'bank',
+                name: 'Transferencia Bancaria',
+                icon: 'account_balance',
+                description: 'Depósito vía transferencia SWIFT o SEPA',
+                currencies: ['USD', 'EUR'],
+                minAmount: 100,
+                maxAmount: 100000,
+                processingTime: '1-3 días hábiles',
+                enabled: true,
+            },
+            {
+                id: 'card',
+                name: 'Tarjeta de Crédito/Débito',
+                icon: 'credit_card',
+                description: 'Pago instantáneo con Visa, Mastercard, Amex',
+                currencies: ['USD', 'EUR'],
+                minAmount: 50,
+                maxAmount: 10000,
+                fee: '2.9% + $0.30',
+                processingTime: 'instantáneo',
+                enabled: true,
+            },
+        ],
+    });
+}
+
+module.exports = { generateDepositAddress, handleWebhook, getDepositStatus, quoteWithdrawal, exportCSV, getBankTransferInfo, requestCardDeposit, getDepositMethods };
