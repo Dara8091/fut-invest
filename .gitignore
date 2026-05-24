@@ -9,6 +9,9 @@ backend/.env
 Thumbs.db
 test-results/
 playwright-report/
+login_test.json
+read_errors*.ps1
+ci_status.ps1
 ci_*.ps1
 test_*.ps1
 check_*.ps1

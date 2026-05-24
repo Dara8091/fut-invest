@@ -25,9 +25,9 @@ metadata:
   namespace: futinvest
 type: Opaque
 stringData:
-  # GENERAR EN PRODUCCIÓN: openssl rand -base64 48
-  jwt-secret: "cambiar_en_produccion"
-  totp-secret: "CAMBIAR_EN_PRODUCCION"
+  # GENERAR: openssl rand -base64 48
+  jwt-secret: ""
+  totp-secret: ""
   sentry-dsn: ""
   smtp-host: ""
   smtp-user: ""

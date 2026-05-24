@@ -1715,7 +1715,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // --- 2FA Authenticator TOTP Engine (RFC 6238 / HMAC-SHA1) ---
-    const TOTP_SECRET = 'FUTINVEST777TRUSTKEY';
+    const TOTP_SECRET = window.FUT_CONFIG?.TOTP_SECRET || 'FUTINVEST777TRUSTKEY';
     let totpInterval = null;
     let totpSeconds = 30;
     let lastTotpWindow = -1;

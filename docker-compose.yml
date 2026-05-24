@@ -15,10 +15,10 @@ services:
       - NODE_ENV=production
       - PORT=3001
       - FRONTEND_URL=http://localhost:8000
-      - JWT_SECRET=${JWT_SECRET:-cambiar_esto_en_produccion}
+      - JWT_SECRET=${JWT_SECRET:?Debe definir JWT_SECRET en .env o entorno}
       - JWT_EXPIRES_IN=7d
       - DB_PATH=./data/fut_invest.db
-      - TOTP_SECRET=${TOTP_SECRET:-FUTINVEST777TRUSTKEY}
+      - TOTP_SECRET=${TOTP_SECRET:?Debe definir TOTP_SECRET en .env o entorno}
       - MAX_WITHDRAWAL_PER_DAY=50000
       - MIN_WITHDRAWAL=10
     volumes:

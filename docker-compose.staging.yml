@@ -12,9 +12,9 @@ services:
       NODE_ENV: staging
       PORT: 3001
       FRONTEND_URL: http://localhost:8000
-      JWT_SECRET: staging-jwt-secret-change-in-production
+      JWT_SECRET: ${JWT_SECRET:?Definir JWT_SECRET}
       DB_PATH: /data/fut_invest.db
-      TOTP_SECRET: STAGINGTOTP1234
+      TOTP_SECRET: ${TOTP_SECRET:?Definir TOTP_SECRET}
       PAYMENT_PROVIDER: mock
       LOG_LEVEL: debug
       METRICS_ENABLED: "true"

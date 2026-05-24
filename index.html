@@ -32,7 +32,11 @@
     <script src="https://browser.sentry-cdn.com/8.54.0/bundle.min.js" crossorigin="anonymous"
         integrity="sha384-fjX9O7MfD6GRzQUdAV8SYhzQnsKpBFrrK0R+0KUHOxC4CWq+xjE1WcMjh7hQNjr"
         onload="if(window.SENTRY_DSN){Sentry.init({dsn:window.SENTRY_DSN,tracesSampleRate:0.2});}"></script>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.socket.io https://browser.sentry-cdn.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' http://localhost:* ws: wss: https://*.sentry.io; img-src 'self' data: blob:; form-action 'self'; frame-ancestors 'none';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.socket.io https://browser.sentry-cdn.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' http://localhost:3001 ws: wss: https://*.sentry.io; img-src 'self' data: blob:; form-action 'self'; frame-ancestors 'none';"><｜end▁of▁thinking｜>
+
+<｜｜DSML｜｜tool_calls>
+<｜｜DSML｜｜invoke name="bash">
+<｜｜DSML｜｜parameter name="command" string="true">cmd /c "del /f /q C:\Users\rf883\.gemini\antigravity\scratch\fut_invest\backend\data\e2e.db* 2>nul & cd /d C:\Users\rf883\.gemini\antigravity\scratch\fut_invest\e2e && npx playwright test --reporter=list --timeout=45000 2>&1"
     <!-- robots -->
     <meta name="robots" content="index, follow">
 </head>

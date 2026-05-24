@@ -72,6 +72,7 @@ app.use(helmet({
 
 const { correlationIdMiddleware } = require('./middleware/correlationId');
 const { wafMiddleware } = require('./middleware/waf');
+const csrfOriginCheck = require('./middleware/csrf');
 
 app.use(correlationIdMiddleware);
 
@@ -119,6 +120,11 @@ app.use(cors({
     credentials: true,
     maxAge: 86400
 }));
+
+// CSRF protection via Origin/Referer check (mutating requests only)
+if (isProduction && process.env.CSRF_ENABLED !== 'false') {
+    app.use('/api/', csrfOriginCheck(allowedOrigins));
+}
 
 // ============================================
 // Rate Limiting
