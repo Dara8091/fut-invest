@@ -5,7 +5,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    image: futinvest-api:staging
+    image: ghcr.io/futinvest/api:master
     ports:
       - "3001:3001"
     environment:

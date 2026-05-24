@@ -56,3 +56,7 @@ gh secret list --environment production
 - `GITHUB_TOKEN` es automático, no necesita configuración
 - Los secrets de Sentry y Snyk son opcionales; el sistema funciona sin ellos
 - JWT_SECRET y TOTP_SECRET deben ser los mismos en GitHub Actions y en el VPS
+- Para que el VPS pueda descargar la imagen de `ghcr.io`, necesitarás hacer `docker login` con un token de GitHub que tenga permisos `read:packages`. Crea un token en https://github.com/settings/tokens y ejecuta en el VPS:
+  ```bash
+  echo $GHCR_PAT | docker login ghcr.io -u Dara8091 --password-stdin
+  ```
