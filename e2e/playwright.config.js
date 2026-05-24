@@ -19,7 +19,7 @@ module.exports = defineConfig({
             reuseExistingServer: true,
         },
         {
-            command: 'node -e "const m=require(\\'./src/db/migrations\\');const d=require(\\'./src/config/database\\');m.runMigrations().then(()=>{require(\\'./src/index\\')})"',
+            command: "node -e \"const m=require('./src/db/migrations');const d=require('./src/config/database');m.runMigrations().then(()=>{require('./src/index')})\"",
             port: 3001,
             cwd: path.join(__dirname, '../backend'),
             reuseExistingServer: true,
