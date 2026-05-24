@@ -70,6 +70,9 @@ app.use(helmet({
     crossOriginEmbedderPolicy: false,
 }));
 
+const { correlationIdMiddleware } = require('./middleware/correlationId');
+const { wafMiddleware } = require('./middleware/waf');
+
 app.use(correlationIdMiddleware);
 
 if (process.env.WAF_ENABLED !== 'false') {
@@ -89,8 +92,6 @@ if (fs.existsSync(publicPath)) {
 // ============================================
 // Metrics middleware (after auth, before routes)
 // ============================================
-const { correlationIdMiddleware } = require('./middleware/correlationId');
-const { wafMiddleware } = require('./middleware/waf');
 const { prometheusMiddleware } = require('./middleware/prometheus');
 const { metricsMiddleware } = require('./middleware/metrics');
 app.use('/api/', metricsMiddleware);

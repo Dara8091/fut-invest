@@ -57,8 +57,11 @@ async function runMigrations() {
         const cs = fileChecksum(path.join(migrationsDir, file));
 
         try {
+            // Strip PRAGMA lines — already set by database.js and can't run inside a transaction
+            const cleanSql = sql.split('\n').filter(l => !l.trim().toUpperCase().startsWith('PRAGMA')).join('\n');
+
             db.transaction(() => {
-                db.exec(sql);
+                db.exec(cleanSql);
                 db.prepare(
                     `INSERT INTO ${MIGRATIONS_TABLE} (name, checksum, duration_ms) VALUES (?, ?, ?)`
                 ).run(file, cs, Date.now() - start);

@@ -97,7 +97,7 @@ router.get('/stats', getDashboardStats);
  *   get:
  *     tags: [Admin]
  *     summary: Exportar logs de auditoría
- *     security: [{ bearerAuth: [] ]}
+ *     security: [{ bearerAuth: [] }]
  */
 router.get('/audit-logs', async (req, res) => {
     const { startDate, endDate, format } = req.query;
