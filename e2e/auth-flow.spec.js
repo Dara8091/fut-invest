@@ -76,6 +76,7 @@ test.describe('fut.invest — Flujo de Autenticación', () => {
 test.describe('fut.invest — Payment Flow', () => {
     test.beforeEach(async ({ page }) => {
         await page.goto('/');
+        await page.evaluate(() => localStorage.setItem('futinvest_onboarding_done', 'true'));
         // Login as demo user
         await page.fill('#auth-email', 'demo@futinvest.io');
         await page.fill('#auth-password', 'Demo123!');
