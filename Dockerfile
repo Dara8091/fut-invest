@@ -15,12 +15,12 @@ WORKDIR /app
 COPY --from=builder /app/node_modules ./node_modules
 COPY backend/ .
 
-RUN mkdir -p /app/data /app/logs /app/certs && \
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh && \
+    mkdir -p /app/data /app/logs /app/certs && \
     chown -R appuser:appgroup /app/data /app/logs /app/certs
 
 USER appuser
 EXPOSE 3001
-COPY docker-entrypoint.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["node", "src/index.js"]

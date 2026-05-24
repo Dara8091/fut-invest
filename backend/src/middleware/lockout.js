@@ -51,7 +51,9 @@ function recordFailedAttempt(email) {
 function clearAttempts(email) {
     try {
         db.prepare('DELETE FROM login_attempts WHERE email = ?').run(email);
-    } catch { }
+    } catch (e) {
+        logger.warn('Error clearing login attempts:', e.message);
+    }
 }
 
 function lockoutMiddleware(req, res, next) {
