@@ -78,7 +78,7 @@ jobs:
         working-directory: e2e
         env:
           JWT_SECRET: test-secret-e2e
-          DB_PATH: ':memory:'
+          DB_PATH: ./data/e2e.db
 
   security:
     runs-on: ubuntu-latest

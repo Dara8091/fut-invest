@@ -19,11 +19,11 @@ module.exports = defineConfig({
             reuseExistingServer: true,
         },
         {
-            command: "node -e \"const m=require('./src/db/migrations');const d=require('./src/config/database');m.runMigrations().then(()=>{require('./src/index')})\"",
+            command: "node -e \"require('./src/db/migrate')\" && node src/index.js",
             port: 3001,
             cwd: path.join(__dirname, '../backend'),
             reuseExistingServer: true,
-            env: { NODE_ENV: 'test', JWT_SECRET: 'test-secret-e2e', DB_PATH: ':memory:' },
+            env: { NODE_ENV: 'test', JWT_SECRET: 'test-secret-e2e', DB_PATH: './data/e2e.db' },
         },
     ],
 });
