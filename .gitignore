@@ -9,3 +9,6 @@ backend/.env
 Thumbs.db
 test-results/
 playwright-report/
+ci_*.ps1
+test_*.ps1
+check_*.ps1
