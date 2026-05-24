@@ -58,7 +58,6 @@ app.use(helmet({
         directives: {
             defaultSrc: ["'self'"],
             scriptSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdn.socket.io"],
-            // 'unsafe-inline' necesario para Swagger UI (inline <script> rendering)
             styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
             fontSrc: ["'self'", "https://fonts.gstatic.com"],
             imgSrc: ["'self'", "data:", "blob:"],
@@ -69,6 +68,17 @@ app.use(helmet({
     },
     crossOriginEmbedderPolicy: false,
 }));
+
+// HTTPS enforcement (production only)
+if (isProduction) {
+    app.use((req, res, next) => {
+        const proto = req.headers['x-forwarded-proto'] || req.protocol;
+        if (proto !== 'https') {
+            return res.status(403).json({ error: 'Se requiere HTTPS' });
+        }
+        next();
+    });
+}
 
 const { correlationIdMiddleware } = require('./middleware/correlationId');
 const { wafMiddleware } = require('./middleware/waf');

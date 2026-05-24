@@ -8,14 +8,17 @@ COPY backend/package*.json ./
 RUN npm ci --only=production
 
 FROM node:22-alpine
-RUN apk add --no-cache openssl
+RUN apk add --no-cache openssl && \
+    addgroup -S appgroup && adduser -S appuser -G appgroup
 WORKDIR /app
 
 COPY --from=builder /app/node_modules ./node_modules
 COPY backend/ .
 
-RUN mkdir -p /app/data /app/logs /app/certs
+RUN mkdir -p /app/data /app/logs /app/certs && \
+    chown -R appuser:appgroup /app/data /app/logs /app/certs
 
+USER appuser
 EXPOSE 3001
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh

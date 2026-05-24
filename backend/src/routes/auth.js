@@ -6,11 +6,12 @@ const {
 const { authenticate } = require('../middleware/auth');
 const { registerRules, loginRules, handleValidationErrors } = require('../middleware/validate');
 const { forgotPasswordLimiter, resetPasswordLimiter } = require('../middleware/rateLimit');
+const { lockoutMiddleware } = require('../middleware/lockout');
 
 const router = Router();
 
 router.post('/register', registerRules, handleValidationErrors, register);
-router.post('/login', loginRules, handleValidationErrors, login);
+router.post('/login', lockoutMiddleware, loginRules, handleValidationErrors, login);
 router.post('/refresh', refresh);
 router.post('/verify-email', verifyEmail);
 router.post('/resend-verification', resendVerification);

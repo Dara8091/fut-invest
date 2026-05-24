@@ -820,7 +820,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             renderWithdrawalQueue();
         } catch (e) {
-            console.warn('API no disponible, usando datos locales:', e.message);
+            showNotification('API no disponible', 'Usando datos locales', 'info');
         }
     }
 
@@ -835,7 +835,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.querySelector('#admin-stat-fees .stat-value').textContent = `$${data.stats.totalFees.toLocaleString()}`;
             document.querySelector('#admin-stat-users-today .stat-value').textContent = data.stats.totalUsersToday;
         } catch (e) {
-            console.warn('Error cargando stats admin:', e.message);
+            showNotification('Error', 'No se pudieron cargar las estadísticas', 'error');
         }
     }
 
@@ -1168,7 +1168,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         } catch (e) {
-            console.warn('Error cargando settings:', e.message);
+            showNotification('Error', 'No se pudieron cargar las configuraciones', 'error');
         }
     }
 
@@ -1491,7 +1491,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             new QRCode(container, { text: address, width: 160, height: 160 });
         } catch (e) {
-            console.warn('QRCode.js no disponible, usando placeholder');
+            showNotification('QR no disponible', 'Usando placeholder', 'info');
         }
     }
 
@@ -1896,7 +1896,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 btnCopyCode.innerHTML = originalHTML;
             }, 2000);
         }).catch(err => {
-            alert('Error al copiar el código al portapapeles: ' + err);
+            showNotification('Error al copiar', err.message, 'error');
         });
     });
 
@@ -2039,7 +2039,7 @@ document.addEventListener('DOMContentLoaded', () => {
             socket.on('disconnect', () => {});
         } catch (e) {
             if (window.Sentry && window.SENTRY_DSN) Sentry.captureException(e);
-            console.warn('Socket.IO no disponible:', e.message);
+            showNotification('Socket.IO no disponible', 'Conexión en tiempo real fallida', 'error');
         }
     }
 

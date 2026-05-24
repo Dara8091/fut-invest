@@ -21,7 +21,6 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-    continue-on-error: true
     defaults:
       run:
         working-directory: backend
@@ -63,6 +62,16 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Run database migrations on staging
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.STAGING_HOST }}
+          username: ${{ secrets.STAGING_USER }}
+          key: ${{ secrets.STAGING_SSH_KEY }}
+          script: |
+            cd /opt/futinvest
+            docker-compose -f docker-compose.staging.yml run --rm api node src/db/migrate.js
 
       - name: Deploy to staging VPS
         uses: appleboy/ssh-action@v1.0.3
@@ -109,6 +118,10 @@ jobs:
           # 5. Prometheus metrics
           echo "=== Metrics ==="
           curl -sf https://staging.futinvest.io/api/metrics/prometheus | grep -q "http_requests_total" && echo "Metrics OK"
+
+          # 6. Frontend loads
+          echo "=== Frontend ==="
+          curl -sf https://staging.futinvest.io/ | grep -q "fut.invest" && echo "Frontend OK"
 
           echo "=== All smoke tests passed ==="
 

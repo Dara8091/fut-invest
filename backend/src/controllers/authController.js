@@ -10,6 +10,7 @@ const ACCESS_TOKEN_EXPIRY = '15m';
 const REFRESH_TOKEN_DAYS = 7;
 const RESET_TOKEN_HOURS = 1;
 const trackConversion = analytics.trackConversion;
+const { recordFailedAttempt, clearAttempts } = require('../middleware/lockout');
 
 function generateTokenPair(user) {
     const accessToken = jwt.sign(
@@ -92,8 +93,11 @@ function login(req, res) {
 
     const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email);
     if (!user || !bcrypt.compareSync(password, user.password_hash)) {
+        recordFailedAttempt(email);
         return res.status(401).json({ error: 'Credenciales inválidas' });
     }
+
+    clearAttempts(email);
 
     if (!user.email_verified && process.env.REQUIRE_EMAIL_VERIFICATION !== 'false') {
         return res.status(403).json({ error: 'Email no verificado. Revisa tu bandeja de entrada.', needsVerification: true });
