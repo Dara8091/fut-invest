@@ -30,6 +30,7 @@ jobs:
         env:
           JWT_SECRET: test-secret
           FRONTEND_URL: http://localhost:8000
+          DB_PATH: ':memory:'
 
       - run: npm run migrate
         env:
@@ -38,12 +39,16 @@ jobs:
 
   lint:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: npx eslint --ext .js,.html .
+      - run: npm ci
+      - run: npm run lint
         continue-on-error: true
 
   e2e:
