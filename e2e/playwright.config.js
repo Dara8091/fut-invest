@@ -23,7 +23,7 @@ module.exports = defineConfig({
             port: 3001,
             cwd: path.join(__dirname, '../backend'),
             reuseExistingServer: true,
-            env: { NODE_ENV: 'test', JWT_SECRET: 'test-secret-e2e', DB_PATH: './data/e2e.db' },
+            env: { NODE_ENV: 'test', JWT_SECRET: 'test-secret-e2e', DB_PATH: './data/e2e.db', REQUIRE_EMAIL_VERIFICATION: 'false' },
         },
     ],
 });

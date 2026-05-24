@@ -82,11 +82,15 @@ const ApiService = {
         }
 
         if (res.status === 401) {
-            this.setToken(null);
-            this._setRefreshToken(null);
-            const event = new CustomEvent('auth:expired');
-            window.dispatchEvent(event);
-            throw new Error('Sesión expirada');
+            if (this._token) {
+                this.setToken(null);
+                this._setRefreshToken(null);
+                const event = new CustomEvent('auth:expired');
+                window.dispatchEvent(event);
+                throw new Error('Sesión expirada');
+            }
+            const data = await res.json();
+            throw new Error(data.error || 'Error de servidor');
         }
 
         const data = await res.json();

@@ -15,7 +15,7 @@ runMigrations().then(() => {
     const bcrypt = require('bcryptjs');
     const hash = bcrypt.hashSync('Demo123!', 10);
 
-    const insertUser = db.prepare(`INSERT INTO users (email, password_hash, full_name, role, tier) VALUES (?, ?, ?, ?, ?)`);
+    const insertUser = db.prepare(`INSERT INTO users (email, password_hash, full_name, role, tier, email_verified) VALUES (?, ?, ?, ?, ?, 1)`);
     const result = insertUser.run('demo@futinvest.io', hash, 'Inversor VIP', 'investor', 'black');
     const userId = result.lastInsertRowid;
 
