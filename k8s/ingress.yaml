@@ -1,0 +1,60 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: futinvest-ingress
+  namespace: futinvest
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "2m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "30"
+    nginx.ingress.kubernetes.io/limit-rps: "100"
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "https://app.futinvest.io"
+    nginx.ingress.kubernetes.io/waf: "owasp-crs"
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      if ($http_user_agent ~* (bot|crawler|spider)) { return 403; }
+      limit_req zone=auth burst=20 nodelay;
+spec:
+  tls:
+    - hosts:
+        - api.futinvest.io
+      secretName: futinvest-tls
+  rules:
+    - host: api.futinvest.io
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: futinvest-api
+                port:
+                  number: 3001
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: futinvest-app-ingress
+  namespace: futinvest
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  tls:
+    - hosts:
+        - app.futinvest.io
+      secretName: futinvest-app-tls
+  rules:
+    - host: app.futinvest.io
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: futinvest-spa
+                port:
+                  number: 80

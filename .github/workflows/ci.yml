@@ -1,0 +1,94 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '0 6 * * 1'  # Every Monday 6 AM
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - run: npm ci
+
+      - run: npm test
+        env:
+          JWT_SECRET: test-secret
+          FRONTEND_URL: http://localhost:8000
+
+      - run: npm run migrate
+        env:
+          DB_PATH: ./data/test.db
+          JWT_SECRET: test-secret
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npx eslint --ext .js,.html .
+        continue-on-error: true
+
+  e2e:
+    runs-on: ubuntu-latest
+    needs: [backend]
+    defaults:
+      run:
+        working-directory: e2e
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - run: npm init -y
+      - run: npm install @playwright/test
+
+      - run: npx playwright install chromium
+
+      - run: npx playwright test
+        env:
+          JWT_SECRET: test-secret-e2e
+          DB_PATH: ':memory:'
+
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Check for secrets in code
+        run: |
+          ! grep -r "JWT_SECRET=dev_secret" backend/.env && echo "No dev secrets leaked" || echo "WARNING: dev secret found"
+
+      - name: Check npm audit
+        run: cd backend && npm audit --audit-level=high
+        continue-on-error: true
+
+  docker:
+    runs-on: ubuntu-latest
+    needs: [backend, e2e]
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t futinvest-api -f Dockerfile .

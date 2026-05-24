@@ -1,0 +1,17 @@
+{
+  "title": "fut.invest - Business Overview",
+  "uid": "futinvest-business",
+  "version": 1,
+  "tags": ["futinvest", "business"],
+  "schemaVersion": 38,
+  "panels": [
+    { "title": "Signups / Día", "type": "stat", "gridPos": {"x":0,"y":0,"w":4,"h":4}, "targets": [{"expr": "increase(futinvest_signups_total[24h])", "legendFormat": "Signups"}] },
+    { "title": "Depósitos Totales (24h)", "type": "stat", "gridPos": {"x":4,"y":0,"w":4,"h":4}, "targets": [{"expr": "increase(futinvest_deposits_total[24h])", "legendFormat": "Depósitos"}] },
+    { "title": "Retiros Totales (24h)", "type": "stat", "gridPos": {"x":8,"y":0,"w":4,"h":4}, "targets": [{"expr": "increase(futinvest_withdrawals_total[24h])", "legendFormat": "Retiros"}] },
+    { "title": "Ingresos por Fees (24h)", "type": "stat", "gridPos": {"x":12,"y":0,"w":4,"h":4}, "targets": [{"expr": "increase(futinvest_fees_total[24h])", "legendFormat": "Fees"}] },
+    { "title": "Usuarios Concurrentes", "type": "stat", "gridPos": {"x":16,"y":0,"w":4,"h":4}, "targets": [{"expr": "futinvest_active_users", "legendFormat": "Activos"}] },
+    { "title": "ROI Promedio", "type": "gauge", "gridPos": {"x":0,"y":4,"w":4,"h":4}, "targets": [{"expr": "avg(futinvest_roi_rate)", "legendFormat": "ROI"}] },
+    { "title": "Requests por Minuto", "type": "graph", "gridPos": {"x":4,"y":4,"w":8,"h":6}, "targets": [{"expr": "rate(http_requests_total[1m])", "legendFormat": "{{method}} {{endpoint}}"}] },
+    { "title": "Latencia p95", "type": "graph", "gridPos": {"x":12,"y":4,"w":8,"h":6}, "targets": [{"expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))", "legendFormat": "p95"}] }
+  ]
+}

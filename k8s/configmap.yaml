@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: futinvest-config
+  namespace: futinvest
+data:
+  NODE_ENV: "production"
+  PORT: "3001"
+  FRONTEND_URL: "https://app.futinvest.io"
+  PAYMENT_PROVIDER: "coinbase_commerce"
+  DB_PATH: "/data/fut_invest.db"
+  LOG_LEVEL: "info"
+  METRICS_ENABLED: "true"
+  WITHDRAWAL_WORKER_ENABLED: "true"
+  WITHDRAWAL_BATCH_SIZE: "10"
+  WITHDRAWAL_POLL_INTERVAL_MS: "30000"
+  REQUIRE_EMAIL_VERIFICATION: "true"
+  ACCESS_TOKEN_EXPIRY: "15m"
+  NOTIFICATION_LOG_SIZE: "200"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: futinvest-secrets
+  namespace: futinvest
+type: Opaque
+stringData:
+  # GENERAR EN PRODUCCIÓN: openssl rand -base64 48
+  jwt-secret: "cambiar_en_produccion"
+  totp-secret: "CAMBIAR_EN_PRODUCCION"
+  sentry-dsn: ""
+  smtp-host: ""
+  smtp-user: ""
+  smtp-pass: ""
+  coinbase-api-key: ""
+  coinbase-webhook-secret: ""

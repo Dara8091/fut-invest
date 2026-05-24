@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sin conexión - fut.invest</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #080C14;
+            color: #E8EDF5;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+            padding: 24px;
+        }
+        .icon { font-size: 72px; margin-bottom: 16px; display: block; }
+        h1 { color: #00D4FF; font-size: 24px; margin-bottom: 12px; }
+        p { color: #8892B0; font-size: 14px; line-height: 1.7; max-width: 400px; }
+        .retry-btn {
+            margin-top: 24px;
+            background: linear-gradient(135deg, #00D4FF, #0099CC);
+            color: #080C14;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .retry-btn:hover { opacity: 0.9; }
+    </style>
+</head>
+<body>
+    <div>
+        <span class="icon">📡</span>
+        <h1>Sin conexión</h1>
+        <p>No hay conexión a Internet en este momento.<br>
+        Las funciones de la aplicación pueden estar limitadas.<br>
+        Los datos se sincronizarán automáticamente cuando recuperes la conexión.</p>
+        <button class="retry-btn" onclick="window.location.reload()">Reintentar</button>
+    </div>
+</body>
+</html>

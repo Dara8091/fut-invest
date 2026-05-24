@@ -1,0 +1,124 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: futinvest-api
+  namespace: futinvest
+  labels:
+    app: futinvest-api
+    tier: backend
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: futinvest-api
+  template:
+    metadata:
+      labels:
+        app: futinvest-api
+        tier: backend
+    spec:
+      imagePullSecrets:
+        - name: regcred
+      containers:
+        - name: api
+          image: futinvest/api:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3001
+              protocol: TCP
+          env:
+            - name: NODE_ENV
+              value: "production"
+            - name: PORT
+              value: "3001"
+            - name: FRONTEND_URL
+              value: "https://app.futinvest.io"
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: futinvest-secrets
+                  key: jwt-secret
+            - name: DB_PATH
+              value: "/data/fut_invest.db"
+            - name: TOTP_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: futinvest-secrets
+                  key: totp-secret
+            - name: PAYMENT_PROVIDER
+              value: "$(PAYMENT_PROVIDER)"
+            - name: SENTRY_DSN
+              valueFrom:
+                secretKeyRef:
+                  name: futinvest-secrets
+                  key: sentry-dsn
+            - name: SMTP_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: futinvest-secrets
+                  key: smtp-host
+            - name: SMTP_USER
+              valueFrom:
+                secretKeyRef:
+                  name: futinvest-secrets
+                  key: smtp-user
+            - name: SMTP_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: futinvest-secrets
+                  key: smtp-pass
+            - name: COINBASE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: futinvest-secrets
+                  key: coinbase-api-key
+            - name: COINBASE_WEBHOOK_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: futinvest-secrets
+                  key: coinbase-webhook-secret
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 3001
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 3001
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          volumeMounts:
+            - name: data
+              mountPath: /data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: futinvest-data
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: futinvest-data
+  namespace: futinvest
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: standard

@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: futinvest-api
+  namespace: futinvest
+  labels:
+    app: futinvest-api
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3001
+      targetPort: 3001
+      protocol: TCP
+      name: http
+  selector:
+    app: futinvest-api
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: futinvest-api-headless
+  namespace: futinvest
+spec:
+  clusterIP: None
+  ports:
+    - port: 3001
+      targetPort: 3001
+  selector:
+    app: futinvest-api

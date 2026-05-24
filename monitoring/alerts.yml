@@ -1,0 +1,48 @@
+groups:
+  - name: futinvest-alerts
+    interval: 30s
+    rules:
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m]) > 0.05
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Tasa de error alta ({{ $value | humanizePercentage }})"
+          description: "Más del 5% de requests están fallando en los últimos 5 minutos."
+
+      - alert: HighLatency
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Latencia alta (p95 > 2s)"
+          description: "El percentil 95 de latencia supera los 2 segundos."
+
+      - alert: LowBalance
+        expr: futinvest_total_balance < 1000
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Balance bajo en plataforma"
+          description: "El balance total de la plataforma es menor a $1,000 USD."
+
+      - alert: InstanceDown
+        expr: up{job="futinvest-api"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Instancia {{ $labels.instance }} caída"
+          description: "La instancia {{ $labels.instance }} lleva más de 1 minuto sin responder."
+
+      - alert: HighCPU
+        expr: rate(process_cpu_seconds_total[5m]) > 0.8
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "CPU alto en {{ $labels.instance }}"
+          description: "El uso de CPU supera el 80% durante más de 5 minutos."
